@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import posts from "../data/posts";
 import { BigPost } from "../components/Posts";
+import { useNavigate } from "react-router-dom";
+import { getTags, createPost } from "../apis/api";
 
 const PostCreatePage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  /* 더미데이터 이용
   const [post, setPost] = useState({
     id: posts.length,
     title: "",
@@ -12,6 +15,12 @@ const PostCreatePage = () => {
     tags: [],
     like_users: [],
     created_at: "2025-02-04T07:42:50.658501Z",
+  });*/
+  //추가
+  const [post, setPost] = useState({
+    title: "",
+    content: "",
+    tags: [],
   });
 
   const [tagInputValue, setTagInputValue] = useState("");
@@ -19,6 +28,8 @@ const PostCreatePage = () => {
   const [autoCompletes, setAutoCompletes] = useState([]);
 
   const [tags, setTags] = useState([]);
+  /*
+  더미데이터로 tag 가져오기
   useEffect(() => {
     const duplicatedTagList = posts.reduce((acc, post) => {
       for (let tag of post.tags) {
@@ -28,6 +39,17 @@ const PostCreatePage = () => {
     }, new Set());
     const tagList = [...duplicatedTagList];
     setTags([...tagList]);
+  }, []);*/
+  //추가
+  useEffect(() => {
+    const getTagsAPI = async () => {
+      const tags = await getTags();
+      const tagContents = tags.map((tag) => {
+        return tag.content;
+      });
+      setTags(tagContents);
+    };
+    getTagsAPI();
   }, []);
 
   const handleChange = (e) => {
@@ -80,7 +102,10 @@ const PostCreatePage = () => {
     });
   };
 
-  const onSubmit = (e) => {
+  const navigate = useNavigate();
+
+  /* 더미데이터 이용하는
+ const onSubmit = (e) => {
     e.preventDefault();
     const createdPost = {
       ...post,
@@ -93,13 +118,14 @@ const PostCreatePage = () => {
     setIsSubmitted(true);
     alert("게시글을 등록합니다.");
     //TODO : api connect
+  };*/
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    createPost(post, navigate);
   };
 
-  return isSubmitted ? (
-    <div className="flex flex-col items-center w-[60%] p-8">
-      <BigPost post={post} />
-    </div>
-  ) : (
+  return (
     <div className="flex flex-col items-center w-3/5">
       <h3 className="font-bold text-4xl">게시글 작성</h3>
       <form className="form" onSubmit={onSubmit}>
