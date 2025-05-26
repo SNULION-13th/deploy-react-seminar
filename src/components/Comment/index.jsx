@@ -1,53 +1,65 @@
-import { useState } from "react";
-import comments from "../../data/comments"; // dummy data
+import { useState, useEffect } from "react";
 import CommentElement from "./CommentElement";
 
+import { getComments, createComment, deleteComment } from "../../apis/api";
+
 const Comment = ({ postId }) => {
-    const [commentList, setCommentList] = useState(comments); // state for comments
-    const [newContent, setNewContent] = useState(""); // state for new comment
+  const [commentList, setCommentList] = useState([]); // state for comments
+  const [newContent, setNewContent] = useState(""); // state for new comment
 
-    const handleCommentSubmit = (e) => {
-        e.preventDefault();
-        setCommentList([ // TODO: add api call for creating comment
-            ...commentList,
-            {
-                id: commentList.length + 1,
-                content: newContent,
-                created_at: new Date().toISOString(),
-                post: postId,
-                author: {
-                    id: 1,
-                    username: "user1"
-                }
-            }
-        ]);
-        console.log({
-            post: postId,
-            content: newContent
-        });
-        setNewContent("");
+  useEffect(() => {
+    const getCommentsAPI = async () => {
+      const data = await getComments(postId);
+      setCommentList(data);
     };
+    getCommentsAPI();
+  }, [postId]);
 
-    const handleCommentDelete = (commentId) => {
-        console.log("comment: ", commentId);
-        setCommentList(commentList.filter((comment) => comment.id !== commentId)); // TODO: add api call for deleting comment
-    };
+  const createCommentsAPI = async () => {
+    await createComment({ post: postId, content: newContent });
+    const data = await getComments(postId);
+    setCommentList(data);
+  };
 
-    return (
-        <div className="w-full mt-5 self-start">
-            <h1 className="text-3xl font-bold my-5">Comments</h1>
-            {commentList.map((comment) => {
-                return (
-                    <CommentElement key={comment.id} comment={comment} handleCommentDelete={handleCommentDelete} postId={postId} />
-                );
-            })}
-            
-            <form className="flex flex-row mt-10 gap-3" onSubmit={handleCommentSubmit}>
-                <input type="text" value={newContent} placeholder="댓글을 입력해주세요" className="input" style={{ width: "calc(100% - 100px)" }} onChange={(e) => setNewContent(e.target.value)} />
-                <button type="submit" className="button">작성</button>
-            </form>
-        </div>
-    );
+  const deleteCommentsAPI = async (commentId) => {
+    const confirm = window.confirm("정말 삭제하시겠습니까?");
+
+    if (!confirm) return;
+
+    await deleteComment(commentId);
+    const data = await getComments(postId);
+    data.filter((comment) => comment.id !== commentId);
+    setCommentList(data); // 코멘트 삭제한 뒤 새로고침.
+  };
+
+  return (
+    <div className="w-full mt-5 self-start">
+      <h1 className="text-3xl font-bold my-5">Comments</h1>
+      {commentList.map((comment) => {
+        return (
+          <CommentElement
+            key={comment.id}
+            comment={comment}
+            handleCommentDelete={deleteCommentsAPI}
+          />
+        );
+      })}
+
+      <form className="flex flex-row mt-10 gap-3" onSubmit={createCommentsAPI}>
+        <input
+          type="text"
+          value={newContent}
+          placeholder="댓글을 입력해주세요"
+          className="input"
+          style={{ width: "calc(100% - 100px)" }}
+          onChange={(e) => setNewContent(e.target.value)}
+        />
+        <button type="submit" className="button">
+          작성
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default Comment;
