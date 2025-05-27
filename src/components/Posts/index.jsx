@@ -4,8 +4,7 @@ import { likePost } from "../../apis/api";
 export const SmallPost = ({ post }) => {
   const onClickLike = (e) => {
     e.preventDefault(); // Link 클릭 이벤트 막기
-    likePost(post.id);
-    window.location.reload(); // 좋아요 클릭 후 페이지 새로고침
+    likePost(post.id) && window.location.reload();
   };
 
   return (

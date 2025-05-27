@@ -20,9 +20,11 @@ const CommentElement = (props) => {
 
   const handleEditComment = () => {
     // add api call for editing comment
-    updateComment(comment.id, { post: postId, content: onChangeValue });
-    setContent(onChangeValue);
-    setIsEdit(!isEdit);
+    if (updateComment(comment.id, { post: postId, content: onChangeValue })) {
+      setContent(onChangeValue);
+      setIsEdit(!isEdit);
+      window.location.reload();
+    }
   };
 
   useEffect(() => {

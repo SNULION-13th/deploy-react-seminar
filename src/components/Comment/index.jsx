@@ -16,9 +16,10 @@ const Comment = ({ postId }) => {
 
   const handleCommentSubmit = (e) => {
     e.preventDefault();
-    createComment({ post: postId, content: newContent }); // API call to create comment
-    setNewContent("");
-    window.location.reload();
+    if (createComment({ post: postId, content: newContent })) {
+      setNewContent("");
+      window.location.reload();
+    }
   };
 
   const handleCommentDelete = (commentId) => {
