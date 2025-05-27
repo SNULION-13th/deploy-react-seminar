@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { BigPost } from "../components/Posts";
 import { getTags, createPost } from "../apis/api";
 import { useNavigate } from "react-router-dom";
 
@@ -9,12 +8,10 @@ const PostCreatePage = () => {
     content: "",
     tags: [],
   });
-
   const [tagInputValue, setTagInputValue] = useState("");
-
   const [autoCompletes, setAutoCompletes] = useState([]);
-
   const [tags, setTags] = useState([]);
+  
   useEffect(() => {
     const getTagsAPI = async () => {
       const tags = await getTags();

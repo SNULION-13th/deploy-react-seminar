@@ -1,10 +1,9 @@
+import Comment from "../components/Comment";
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { BigPost } from "../components/Posts";
-import Comment from "../components/Comment";
-import { getPost, getUser } from "../apis/api";
 import { getCookie } from "../utils/cookie";
-import posts from "../data/posts";
+import { getPost, getUser, deletePost } from "../apis/api";
 
 const PostDetailPage = () => {
   const { postId } = useParams();
@@ -18,7 +17,7 @@ const PostDetailPage = () => {
     };
     getPostAPI();
   }, [postId]);
-	// 작성했던 getPost()를 호출한 후, setPostList를 통해 postList에 저장
+  // 작성했던 getPost()를 호출한 후, setPostList를 통해 postList에 저장
 
   useEffect(() => {
     // access_token이 있으면 유저 정보 가져옴
@@ -33,10 +32,14 @@ const PostDetailPage = () => {
   }, []);
 
   const navigate = useNavigate();
-  const onClickDelete = () => {
-    alert("게시물을 삭제합니다.");
-    navigate("/");
-    // add api call for deleting post
+  const onClickDelete = async () => {
+    const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+    try {
+      await deletePost(postId, navigate);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
