@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { signIn } from "../apis/api";
 
 const SignInPage = () => {
 	const [signInData, setSignInData] = useState({
@@ -11,11 +12,10 @@ const SignInPage = () => {
 		setSignInData({ ...signInData, [id]: value });
 	};
 
-const handleSignInSubmit = () => {
-		console.log(signInData);
-		alert("로그인 완 료!");
-		// add api call for sign in here
-	};
+  const handleSignInSubmit = (e) => {
+    e.preventDefault(); // to prevent reloading the page
+    signIn(signInData);
+  };
 
 	return (
 		<div className="flex flex-col items-center w-1/2">
