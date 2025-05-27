@@ -1,32 +1,27 @@
-import { useState } from "react";
-import comments from "../../data/comments"; // dummy data
+import { useState, useEffect } from "react";
 import CommentElement from "./CommentElement";
+import { createComment, getComments } from "../../apis/api";
+
+
 
 const Comment = ({ postId }) => {
-    const [commentList, setCommentList] = useState(comments); // state for comments
+    const [commentList, setCommentList] = useState([]); // state for comments
     const [newContent, setNewContent] = useState(""); // state for new comment
+
+    useEffect(() => {
+        const getCommentsAPI = async () => {
+            const comments = await getComments(postId);
+            setCommentList(comments);
+        };
+        getCommentsAPI();
+    }, [postId]);
 
     const handleCommentSubmit = (e) => {
         e.preventDefault();
-        setCommentList([ // TODO: add api call for creating comment
-            ...commentList,
-            {
-                id: commentList.length + 1,
-                content: newContent,
-                created_at: new Date().toISOString(),
-                post: postId,
-                author: {
-                    id: 1,
-                    username: "user1"
-                }
-            }
-        ]);
-        console.log({
-            post: postId,
-            content: newContent
-        });
+        createComment({ post: postId, content: newContent });
         setNewContent("");
-    };
+    }
+
 
     const handleCommentDelete = (commentId) => {
         console.log("comment: ", commentId);

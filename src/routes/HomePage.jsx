@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { SmallPost } from "../components/Posts";
 import { Link } from "react-router-dom";
 import posts from "../data/posts";
-import { getPosts, getTags } from "../apis/api";
+import { getPosts, getTags, getComments } from "../apis/api";
 import { getCookie } from "../utils/cookie";
 
 const HomePage = () => {
@@ -10,6 +10,7 @@ const HomePage = () => {
   const [tags, setTags] = useState([]);
   const [searchTags, setSearchTags] = useState([]);
   const [searchValue, setSearchValue] = useState("");
+
   useEffect(() => {
   	const getPostsAPI = async () => {
 			const posts = await getPosts();
@@ -28,6 +29,7 @@ const HomePage = () => {
     getTagsAPI();
 		// getTags() 이용해서 tag들 불러오고 tags.map을 이용해서 tagContents에
 		// tag.content만 저장한 후, tags와 searchTags에 저장
+
   }, []);
 
   const handleChange = (e) => {
