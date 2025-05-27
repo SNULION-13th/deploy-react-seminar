@@ -73,7 +73,14 @@ export const deletePost = async (id, navigate) => {
 };
 
 // 과제!!
-export const likePost = async (postId) => {};
+export const likePost = async (postId) => {
+  const response = await instanceWithToken.post(`/post/${postId}/like/`);
+  if (response.status === 200) {
+    console.log("LIKE SUCCESS");
+  } else {
+    console.log("[ERROR] error while liking post");
+  }
+};
 
 // Tag 관련 API들
 export const getTags = async () => {
@@ -101,7 +108,6 @@ export const createComment = async (data) => {
   const response = await instanceWithToken.post("/comment/", data);
   if (response.status === 201) {
     console.log("COMMENT SUCCESS");
-    window.location.reload(); // 새로운 코멘트 생성시 새로고침으로 반영
   } else {
     console.log("[ERROR] error while creating comment");
   }
@@ -111,11 +117,17 @@ export const updateComment = async (id, data) => {
   const response = await instanceWithToken.put(`/comment/${id}/`, data); // 혹시 patch로 구현했다면 .patch
   if (response.status === 200) {
     console.log("COMMENT UPDATE SUCCESS");
-    window.location.reload();
   } else {
     console.log("[ERROR] error while updating comment");
   }
 };
 
 // 과제 !!
-export const deleteComment = async (id) => {};
+export const deleteComment = async (id) => {
+  const response = await instanceWithToken.delete(`/comment/${id}/`);
+  if (response.status === 204) {
+    console.log("DELETE SUCCESS");
+  } else {
+    console.log("[ERROR] error while deleting comment");
+  }
+};
