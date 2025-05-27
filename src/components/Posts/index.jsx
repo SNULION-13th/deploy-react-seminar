@@ -19,9 +19,13 @@ export const SmallPost = ({ post }) => {
           </span>
         ))}
       </div>
-      <div className="cursor-pointer" onClick={onClickLike}>
-        {post.like_users.length > 0 && `❤️ ${post.like_users.length}`}
-      </div>
+      <button
+        type="button"
+        className="bg-transparent border-none cursor-pointer"
+        onClick={onClickLike}
+      >
+        ❤️ {post.like_users.length}
+      </button>
     </Link>
   );
 };
@@ -54,13 +58,13 @@ export const BigPost = ({ post }) => {
             </span>
           ))}
       </div>
-
-      <div
-        className="flex flex-row text-black cursor-pointer"
+      <button
+        type="button"
+        className="self-start text-black bg-transparent border-none cursor-pointer mt-2"
         onClick={onClickLike}
       >
-        {post.like_users.length > 0 && `❤️ ${post.like_users.length}`}
-      </div>
+        ❤️ {post.like_users.length}
+      </button>
     </div>
   );
 };
