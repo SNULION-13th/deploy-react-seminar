@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
+import { getUser, updateComment } from "../../apis/api";
+import { getCookie } from "../../utils/cookie";
 
 const CommentElement = (props) => {
-    const { comment, handleCommentDelete, postId } = props;
-    const [content, setContent] = useState(comment.content);
+    const { comment, handleCommentDelete } = props;
+    const [isAuthor, setIsAuthor] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-
-    const [onChangeValue, setOnChangeValue] = useState(content); // 수정 취소 시 직전 content 값으로 변경을 위한 state
+    const [content, setContent] = useState(comment.content);
+    const [onChangeContent, setOnChangeContent] = useState(content);
 
     // comment created_at 전처리
     const date = new Date(comment.created_at);
@@ -15,43 +17,79 @@ const CommentElement = (props) => {
     let day = date.getDate();
     day = day < 10 ? `0${day}` : day;
 
-    const handleEditComment = () => { // add api call for editing comment
-        setContent(onChangeValue);
-        setIsEdit(!isEdit);
-        console.log({
-            post: postId,
-            comment: comment.id,
-            content: content
-        });
+    useEffect(() => {
+        if (getCookie("access_token")) {
+            const getUserAPI = async () => {
+                const user = await getUser();
+                try {
+                    setIsAuthor(user.id === comment.author.id);
+                }
+                catch (error) {
+                    setIsAuthor(false);
+                    console.log("CommentElement: 유저 정보 가져오기 실패 (Undefined Value):", error);
+                }
+            };
+
+            getUserAPI().catch(error => {
+                setIsAuthor(false);
+                console.log("CommentElement: 유저 정보 가져오기 실패 (Promise catch):", error);
+            });
+        }
+    }, [comment]);
+
+    const handleEditComment = async () => {
+        try {
+            await updateComment(comment.id, { content: onChangeContent });
+            setContent(onChangeContent);
+            setIsEdit(false);
+        } catch (error) {
+            console.error("댓글 수정 실패:", error);
+            setOnChangeContent(content);
+        }
     };
 
-    useEffect(() => { // add api call to check if user is the author of the comment
-    }, []);
 
     return (
         <div className="w-full flex flex-row justify-between items-center mb-5">
             <div className="w-3/4 flex flex-col gap-1">
                 {isEdit ? (
-                    <input className="input mb-2" value={onChangeValue} onChange={(e) => setOnChangeValue(e.target.value)} />
+                    <input
+                        className="input mb-2"
+                        value={onChangeContent}
+                        onChange={(e) => setOnChangeContent(e.target.value)}
+                    />
                 ) : (
                     <p className="text-lg">{content}</p>
                 )}
 
-                <span className="text-base text-gray-300">{year}.{month}.{day}</span>
+                <span className="text-base text-gray-300">
+                    {year}.{month}.{day}
+                </span>
             </div>
 
             <div className="flex flex-row items-center gap-3">
-                {isEdit ? (
-                    <>
-                        <button onClick={() => { setIsEdit(!isEdit); setOnChangeValue(content); }}>취소</button>
-                        <button onClick={handleEditComment}>완료</button>
-                    </>
-                ) : (
-                    <>
-                        <button onClick={() => handleCommentDelete(comment.id)}>삭제</button>
-                        <button onClick={() => setIsEdit(!isEdit)}>수정</button>
-                    </>
-                )}
+                {isAuthor ? (
+                    isEdit ? (
+                        <>
+                            <button
+                                onClick={() => {
+                                    setIsEdit(false);
+                                    setOnChangeContent(content);
+                                }}
+                            >
+                                취소
+                            </button>
+                            <button onClick={handleEditComment}>완료</button>
+                        </>
+                    ) : (
+                        <>
+                            <button onClick={() => handleCommentDelete(comment.id)}>
+                                삭제
+                            </button>
+                            <button onClick={() => setIsEdit(true)}>수정</button>
+                        </>
+                    )
+                ) : null}
             </div>
         </div>
     );
