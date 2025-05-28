@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getCookie } from "../../utils/cookie";
-import { getUser, updateComment } from "../../apis/api";
+import { getUser, updateComment, deleteComment } from "../../apis/api";
 
 const CommentElement = (props) => {
     const { comment, handleCommentDelete, postId } = props;
@@ -24,7 +24,6 @@ const CommentElement = (props) => {
         setContent(onChangeValue);
         setIsEdit(!isEdit);
     };
-    
 
     useEffect(() => {
         if (getCookie("access_token")) {
@@ -56,7 +55,12 @@ const CommentElement = (props) => {
                 )}
                 {!isEdit && user?.id === comment?.author?.id && (
                 <>
-                    <button onClick={() => handleCommentDelete(comment.id)}>삭제</button>
+                    <button onClick={() => {
+                        const confirmDelete = window.confirm("정말 댓글을 삭제하시겠습니까?");
+                        if (confirmDelete) {deleteComment(comment.id);};
+                        }}>
+                        삭제
+                    </button>
                     <button onClick={() => setIsEdit(true)}>수정</button>
                 </>
                 )}
