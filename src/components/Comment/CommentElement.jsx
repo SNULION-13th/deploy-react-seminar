@@ -1,59 +1,89 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { updateComment, deleteComment } from "../../apis/api";
 
-const CommentElement = (props) => {
-    const { comment, handleCommentDelete, postId } = props;
-    const [content, setContent] = useState(comment.content);
-    const [isEdit, setIsEdit] = useState(false);
+const CommentElement = ({
+  comment,
+  handleCommentDelete,
+  postId,
+  currentUserId,
+  onUpdate,
+}) => {
+  const [content, setContent] = useState(comment.content);
+  const [isEdit, setIsEdit] = useState(false);
+  const [editValue, setEditValue] = useState(comment.content);
 
-    const [onChangeValue, setOnChangeValue] = useState(content); // 수정 취소 시 직전 content 값으로 변경을 위한 state
+  // 날짜 포맷
+  const date = new Date(comment.created_at);
+  const year = date.getFullYear();
+  let month = date.getMonth() + 1;
+  month = month < 10 ? `0${month}` : month;
+  let day = date.getDate();
+  day = day < 10 ? `0${day}` : day;
 
-    // comment created_at 전처리
-    const date = new Date(comment.created_at);
-    const year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    month = month < 10 ? `0${month}` : month;
-    let day = date.getDate();
-    day = day < 10 ? `0${day}` : day;
+  const startEdit = () => {
+    setEditValue(content);
+    setIsEdit(true);
+  };
+  const cancelEdit = () => {
+    setEditValue(content);
+    setIsEdit(false);
+  };
 
-    const handleEditComment = () => { // add api call for editing comment
-        setContent(onChangeValue);
-        setIsEdit(!isEdit);
-        console.log({
-            post: postId,
-            comment: comment.id,
-            content: content
-        });
-    };
+  const submitEdit = async () => {
+    try {
+      await updateComment(comment.id, { content: editValue });
+      setContent(editValue);
+      setIsEdit(false);
+      onUpdate();
+    } catch (err) {
+      console.error("댓글 수정 실패", err);
+    }
+  };
 
-    useEffect(() => { // add api call to check if user is the author of the comment
-    }, []);
+  const handleDeleteClick = async () => {
+    if (window.confirm("정말 이 댓글을 삭제하시겠습니까?")) {
+      try {
+        await deleteComment(comment.id);
+        onUpdate();
+      } catch (err) {
+        console.error("댓글 삭제 실패", err);
+      }
+    }
+  };
 
-    return (
-        <div className="w-full flex flex-row justify-between items-center mb-5">
-            <div className="w-3/4 flex flex-col gap-1">
-                {isEdit ? (
-                    <input className="input mb-2" value={onChangeValue} onChange={(e) => setOnChangeValue(e.target.value)} />
-                ) : (
-                    <p className="text-lg">{content}</p>
-                )}
-
-                <span className="text-base text-gray-300">{year}.{month}.{day}</span>
-            </div>
-
-            <div className="flex flex-row items-center gap-3">
-                {isEdit ? (
-                    <>
-                        <button onClick={() => { setIsEdit(!isEdit); setOnChangeValue(content); }}>취소</button>
-                        <button onClick={handleEditComment}>완료</button>
-                    </>
-                ) : (
-                    <>
-                        <button onClick={() => handleCommentDelete(comment.id)}>삭제</button>
-                        <button onClick={() => setIsEdit(!isEdit)}>수정</button>
-                    </>
-                )}
-            </div>
-        </div>
-    );
+  return (
+    <li className="w-full flex justify-between items-center mb-5">
+      <div className="flex-1">
+        {isEdit ? (
+          <input
+            className="input mb-2"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+          />
+        ) : (
+          <p className="text-lg">{content}</p>
+        )}
+        <span className="text-gray-400 text-sm">
+          {year}.{month}.{day}
+        </span>
+      </div>
+      <div className="flex gap-3">
+        {isEdit ? (
+          <>
+            <button onClick={cancelEdit}>취소</button>
+            <button onClick={submitEdit}>완료</button>
+          </>
+        ) : (
+          currentUserId === comment.author.id && (
+            <>
+              <button onClick={handleDeleteClick}>삭제</button>
+              <button onClick={startEdit}>수정</button>
+            </>
+          )
+        )}
+      </div>
+    </li>
+  );
 };
+
 export default CommentElement;

@@ -1,53 +1,111 @@
-import { useState } from "react";
-import comments from "../../data/comments"; // dummy data
+import React, { useState, useEffect } from "react";
+import {
+  getComments,
+  createComment,
+  deleteComment,
+  getUser,
+} from "../../apis/api";
 import CommentElement from "./CommentElement";
 
 const Comment = ({ postId }) => {
-    const [commentList, setCommentList] = useState(comments); // state for comments
-    const [newContent, setNewContent] = useState(""); // state for new comment
+  const [commentList, setCommentList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newContent, setNewContent] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
 
-    const handleCommentSubmit = (e) => {
-        e.preventDefault();
-        setCommentList([ // TODO: add api call for creating comment
-            ...commentList,
-            {
-                id: commentList.length + 1,
-                content: newContent,
-                created_at: new Date().toISOString(),
-                post: postId,
-                author: {
-                    id: 1,
-                    username: "user1"
-                }
-            }
-        ]);
-        console.log({
-            post: postId,
-            content: newContent
-        });
-        setNewContent("");
-    };
+  // 댓글 목록을 불러오는 함수
+  const loadComments = async () => {
+    setLoading(true);
+    try {
+      const data = await getComments(postId);
+      setCommentList(data);
+    } catch (err) {
+      console.error("댓글 불러오기 실패", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleCommentDelete = (commentId) => {
-        console.log("comment: ", commentId);
-        setCommentList(commentList.filter((comment) => comment.id !== commentId)); // TODO: add api call for deleting comment
-    };
+  // 컴포넌트 마운트 시 댓글과 유저 정보 둘 다 가져오기
+  useEffect(() => {
+    loadComments();
+  }, [postId]);
 
-    return (
-        <div className="w-full mt-5 self-start">
-            <h1 className="text-3xl font-bold my-5">Comments</h1>
-            {commentList.map((comment) => {
-                return (
-                    <CommentElement key={comment.id} comment={comment} handleCommentDelete={handleCommentDelete} postId={postId} />
-                );
-            })}
-            
-            <form className="flex flex-row mt-10 gap-3" onSubmit={handleCommentSubmit}>
-                <input type="text" value={newContent} placeholder="댓글을 입력해주세요" className="input" style={{ width: "calc(100% - 100px)" }} onChange={(e) => setNewContent(e.target.value)} />
-                <button type="submit" className="button">작성</button>
-            </form>
-        </div>
-    );
+  useEffect(() => {
+    (async () => {
+      try {
+        const userData = await getUser();
+        setCurrentUser(userData);
+      } catch (err) {
+        console.error("유저 정보 불러오기 실패", err);
+        setCurrentUser({ id: null });
+      }
+    })();
+  }, []);
+
+  // 댓글 생성 핸들러
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!newContent.trim()) return;
+    try {
+      await createComment({ post: postId, content: newContent });
+      setNewContent("");
+      await loadComments();
+    } catch (err) {
+      console.error("댓글 생성 실패", err);
+    }
+  };
+
+  // 댓글 삭제 핸들러
+  const handleCommentDelete = async (commentId) => {
+    try {
+      await deleteComment(commentId);
+      await loadComments();
+    } catch (err) {
+      console.error("댓글 삭제 실패", err);
+    }
+  };
+
+  // 로딩 중이거나 유저 정보가 없으면
+  if (loading || currentUser === null) {
+    return <p>로딩 중…</p>;
+  }
+
+  return (
+    <div className="w-full mt-5 self-start">
+      <h2 className="text-3xl font-bold mb-4">Comments</h2>
+
+      {commentList.length === 0 ? (
+        <p>아직 댓글이 없습니다.</p>
+      ) : (
+        <ul>
+          {commentList.map((comment) => (
+            <CommentElement
+              key={comment.id}
+              comment={comment}
+              postId={postId}
+              currentUserId={currentUser.id}
+              onUpdate={loadComments}
+              handleCommentDelete={handleCommentDelete}
+            />
+          ))}
+        </ul>
+      )}
+
+      <form onSubmit={handleCommentSubmit} className="flex flex-row mt-6 gap-3">
+        <input
+          type="text"
+          value={newContent}
+          onChange={(e) => setNewContent(e.target.value)}
+          placeholder="댓글을 입력해주세요"
+          className="input flex-1"
+        />
+        <button type="submit" className="button">
+          작성
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default Comment;
