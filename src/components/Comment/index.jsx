@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 //import comments from "../../data/comments"; // dummy data
 import CommentElement from "./CommentElement";
-import { getComments } from "../../apis/api";
+import { getComments,createComment } from "../../apis/api";
 
 const Comment = ({ postId }) => {
     const [commentList, setCommentList] = useState([]); // state for comments
@@ -11,7 +11,9 @@ const Comment = ({ postId }) => {
     useEffect(()=>{
         const fetchComments = async () =>{
             try{
-                const response = await getComments()
+                const response = await getComments(postId)
+                setCommentList(response.data);
+
             } catch (error){
                 console.error("댓글 불러오기 실패",error)
             }
@@ -21,17 +23,11 @@ const Comment = ({ postId }) => {
 
     const handleCommentSubmit = (e) => {
         e.preventDefault();
-
-        const newComment=            {
-                id: commentList.length + 1,
+        try{
+        const newComment= createComment({
                 content: newContent,
-                created_at: new Date().toISOString(),
                 post: postId,
-                author: {
-                    id: 1,
-                    username: "user1"
-                }
-            }
+            });
 
         setCommentList([ // TODO: add api call for creating comment
             ...commentList,
@@ -42,8 +38,10 @@ const Comment = ({ postId }) => {
             content: newContent
         });
         setNewContent("");
+    }catch(error){
+        console.error("댓글 작성 중 오류가 생겼습니다.", error)
     };
-
+    };
     const handleCommentDelete = (commentId) => {
         console.log("comment: ", commentId);
         setCommentList(commentList.filter((comment) => comment.id !== commentId)); // TODO: add api call for deleting comment
