@@ -27,7 +27,7 @@ const Comment = ({ postId }) => {
       //   author: {
       //     id: 1,
       //     username: "user1",
-      //   },
+      //    },
     });
     console.log({
       post: postId,
