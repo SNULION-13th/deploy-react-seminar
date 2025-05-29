@@ -100,7 +100,19 @@ export const updateComment = async (id, data) => {
 };
 
 // 과제 !!
-export const deleteComment = async (id) => {};
+export const deleteComment = async (id) => {
+  try {
+    const response = await instanceWithToken.delete(`/comment/${id}/`);
+    if (response.status === 204) {
+      console.log("COMMENT DELETE SUCCESS");
+      window.location.reload();
+    } else {
+      console.log("[ERROR] error while deleting comment");
+    }
+  } catch (error) {
+    console.error("댓글 삭제 실패:", error);
+  }
+};
 
 export const getUser = async () => {
   const response = await instanceWithToken.get("/account/info/");
