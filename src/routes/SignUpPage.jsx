@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { signUp } from "../apis/apis";
+import { signUp } from "../apis/api";
 const SignUpPage = () => {
   const [signUpData, setSignUpData] = useState({
     email: "",

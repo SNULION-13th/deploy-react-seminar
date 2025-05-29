@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { SmallPost } from "../components/Posts";
 import { Link } from "react-router-dom";
 import posts from "../data/posts";
-import { getPosts, getTags } from "../apis/apis";
+import { getPosts, getTags } from "../apis/api";
 import { getCookie } from "../utils/cookie";
 
 const HomePage = () => {

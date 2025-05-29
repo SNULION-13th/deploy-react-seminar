@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { BigPost } from "../components/Posts";
-import { getTags, createPost } from "../apis/apis";
+import { getTags, createPost } from "../apis/api";
 import { useNavigate } from "react-router-dom";
 
 const PostCreatePage = () => {

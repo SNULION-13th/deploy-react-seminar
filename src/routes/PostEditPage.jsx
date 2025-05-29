@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import posts from "../data/posts";
 import { BigPost } from "../components/Posts";
-import { getTags, getPost, updatePost } from "../apis/apis";
+import { getTags, getPost, updatePost } from "../apis/api";
 import { useNavigate } from "react-router-dom";
 
 

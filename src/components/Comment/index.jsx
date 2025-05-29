@@ -1,16 +1,28 @@
-import { useState } from "react";
-import comments from "../../data/comments"; // dummy data
+import { useEffect, useState } from "react";
+//import comments from "../../data/comments"; // dummy data
 import CommentElement from "./CommentElement";
+import { getComments } from "../../apis/api";
 
 const Comment = ({ postId }) => {
-    const [commentList, setCommentList] = useState(comments); // state for comments
+    const [commentList, setCommentList] = useState([]); // state for comments
     const [newContent, setNewContent] = useState(""); // state for new comment
+    
+
+    useEffect(()=>{
+        const fetchComments = async () =>{
+            try{
+                const response = await getComments()
+            } catch (error){
+                console.error("댓글 불러오기 실패",error)
+            }
+        };
+         fetchComments();
+    },[postId]);
 
     const handleCommentSubmit = (e) => {
         e.preventDefault();
-        setCommentList([ // TODO: add api call for creating comment
-            ...commentList,
-            {
+
+        const newComment=            {
                 id: commentList.length + 1,
                 content: newContent,
                 created_at: new Date().toISOString(),
@@ -20,6 +32,10 @@ const Comment = ({ postId }) => {
                     username: "user1"
                 }
             }
+
+        setCommentList([ // TODO: add api call for creating comment
+            ...commentList,
+                newComment
         ]);
         console.log({
             post: postId,

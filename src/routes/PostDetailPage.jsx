@@ -4,8 +4,9 @@ import { BigPost } from "../components/Posts";
 import Comment from "../components/Comment";
 
 import posts from "../data/posts";
-import { getPost,getUser, deletePost} from "../apis/apis";
+import { getPost,getUser, deletePost} from "../apis/api";
 import { getCookie } from "../utils/cookie";
+
 
 const PostDetailPage = () => {
   const { postId } = useParams();
