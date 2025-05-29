@@ -1,51 +1,57 @@
-import { useState } from "react";
-import comments from "../../data/comments"; // dummy data
+import { useState, useEffect } from "react";
 import CommentElement from "./CommentElement";
+import { getComments, createComment, deleteComment, getUser } from "../../apis/api";
+import { getCookie } from "../../utils/cookie";
+import { useParams } from "react-router-dom";
 
 const Comment = ({ postId }) => {
-    const [commentList, setCommentList] = useState(comments); // state for comments
+    const [commentList, setCommentList] = useState([]); // state for comments
     const [newContent, setNewContent] = useState(""); // state for new comment
+    const [user, setUser] = useState(null);
 
-    const handleCommentSubmit = (e) => {
+
+    useEffect(() => {
+        if (postId) {
+            getComments(postId).then(setCommentList);
+        }
+
+        if (getCookie("access_token")) {
+            getUser().then(setUser);
+        }
+    }, [postId]);
+
+    const handleCommentSubmit = async (e) => {
         e.preventDefault();
-        setCommentList([ // TODO: add api call for creating comment
-            ...commentList,
-            {
-                id: commentList.length + 1,
-                content: newContent,
-                created_at: new Date().toISOString(),
-                post: postId,
-                author: {
-                    id: 1,
-                    username: "user1"
-                }
-            }
-        ]);
-        console.log({
-            post: postId,
-            content: newContent
-        });
+        await createComment({ content: newContent, post: postId });
+        const updated = await getComments(postId);
+        setCommentList(updated);
         setNewContent("");
     };
 
-    const handleCommentDelete = (commentId) => {
-        console.log("comment: ", commentId);
-        setCommentList(commentList.filter((comment) => comment.id !== commentId)); // TODO: add api call for deleting comment
+    const handleCommentDelete = async (id) => {
+        const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+        if (!confirmDelete) return;
+        await deleteComment(id);
+        const updated = await getComments(postId);
+        setCommentList(updated);
     };
+
 
     return (
         <div className="w-full mt-5 self-start">
             <h1 className="text-3xl font-bold my-5">Comments</h1>
             {commentList.map((comment) => {
                 return (
-                    <CommentElement key={comment.id} comment={comment} handleCommentDelete={handleCommentDelete} postId={postId} />
+                    <CommentElement key={comment.id} comment={comment} handleCommentDelete={handleCommentDelete} postId={postId} currentUser={user}/>
                 );
             })}
             
-            <form className="flex flex-row mt-10 gap-3" onSubmit={handleCommentSubmit}>
-                <input type="text" value={newContent} placeholder="댓글을 입력해주세요" className="input" style={{ width: "calc(100% - 100px)" }} onChange={(e) => setNewContent(e.target.value)} />
-                <button type="submit" className="button">작성</button>
-            </form>
+            {getCookie("access_token") ? (
+                <form className="flex flex-row mt-10 gap-3" onSubmit={handleCommentSubmit}>
+                    <input type="text" value={newContent} placeholder="댓글을 입력해주세요" className="input" style={{ width: "calc(100% - 100px)" }} onChange={(e) => setNewContent(e.target.value)} />
+                    <button type="submit" className="button">작성</button>
+                </form>
+            ) : null}
         </div>
     );
 };
