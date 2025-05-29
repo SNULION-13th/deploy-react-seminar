@@ -21,32 +21,53 @@ const Comment = ({ postId }) => {
          fetchComments();
     },[postId]);
 
-    const handleCommentSubmit = (e) => {
+    const handleCommentSubmit =async (e) => {
         e.preventDefault();
+        if (!newContent.trim()) return;
         try{
-        const newComment= createComment({
-                content: newContent,
+        const newComment= await createComment({
                 post: postId,
+                content: newContent,
             });
 
-        setCommentList([ // TODO: add api call for creating comment
+        if (!newComment) {
+        console.error("댓글 응답이 없습니다");
+        return;
+        }
+
+        setCommentList((commentList)=>[ // TODO: add api call for creating comment
             ...commentList,
-                newComment
+            newComment
         ]);
+        setNewContent("");
+        
         console.log({
             post: postId,
             content: newContent
         });
-        setNewContent("");
+        
     }catch(error){
         console.error("댓글 작성 중 오류가 생겼습니다.", error)
         };
     };
 
+
+
     const handleCommentDelete = (commentId) => {
         console.log("comment: ", commentId);
         setCommentList(commentList.filter((comment) => comment.id !== commentId)); // TODO: add api call for deleting comment
     };
+
+    const handleCommentUpdate = (commentId, newContent) => {
+        setCommentList(prev =>
+            prev.map(comment =>
+            comment.id === commentId
+                ? { ...comment, content: newContent }
+                : comment
+            )
+        );
+        };
+
 
     return (
         <div className="w-full mt-5 self-start">

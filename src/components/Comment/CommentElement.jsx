@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import {updateComment} from "apis/api.js"
+import {updateComment} from "../../apis/api.js"
+import { getCookie } from "../../utils/cookie.js";
 const CommentElement = (props) => {
     const { comment, handleCommentDelete, postId } = props;
     const [content, setContent] = useState(comment.content);
     const [isEdit, setIsEdit] = useState(false);
-
     const [onChangeValue, setOnChangeValue] = useState(content); // 수정 취소 시 직전 content 값으로 변경을 위한 state
+    const [isAuthor, setIsAuthor] = useState(false);
 
     // comment created_at 전처리
     const date = new Date(comment.created_at);
@@ -32,7 +33,21 @@ const CommentElement = (props) => {
     };
 
     useEffect(() => { // add api call to check if user is the author of the comment
-    }, []);
+        const checkAuthor = async () => {
+            if (getCookie("access_token")){
+                try{
+                    const user=await getUser();
+                    if (user.id === comment.author.id){
+                        setIsAuthor(true);
+                    }
+                }catch (error){
+                    console.error("checkauthor 오류",error)
+                }
+            }
+        };
+        checkAuthor();
+
+    }, [comment.author.id]);
 
     return (
         <div className="w-full flex flex-row justify-between items-center mb-5">
@@ -53,10 +68,12 @@ const CommentElement = (props) => {
                         <button onClick={handleEditComment}>완료</button>
                     </>
                 ) : (
+                    isAuthor &&(
                     <>
                         <button onClick={() => handleCommentDelete(comment.id)}>삭제</button>
                         <button onClick={() => setIsEdit(!isEdit)}>수정</button>
                     </>
+                    )
                 )}
             </div>
         </div>
