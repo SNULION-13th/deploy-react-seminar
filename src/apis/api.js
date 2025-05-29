@@ -119,15 +119,32 @@ export const updateComment = async (id, data) => {
 
 // 과제 !!
 export const deleteComment = async (id) => {
-
+    const response = await instanceWithToken.delete(`/comment/${id}/`);
+    if (response.status === 200) {
+    console.log("COMMENT DELETE SUCCESS");
+    window.location.reload();
+    } else {
+    console.log("[ERROR] error while deleting comment");
+    }
 };
 
 export const getUser = async () => {
     const response = await instanceWithToken.get("/account/info/");
+   try{ 
     if (response.status === 200) {
-    console.log("GET USER SUCCESS");
-    } else {
-    console.log("[ERROR] error while updating comment");
+        console.log("GET USER SUCCESS");
+        } 
+    }catch(error){
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 400) {
+        alert("잘못된 요청입니다.");
+      } else if (status === 401) {
+        alert("로그인이 필요합니다.");
+      } else if (status === 404) {
+        alert("해당 댓글을 찾을 수 없습니다.");
+      } 
+        }
     }
     return response.data;
 };

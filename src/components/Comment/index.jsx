@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 //import comments from "../../data/comments"; // dummy data
 import CommentElement from "./CommentElement";
-import { getComments,createComment } from "../../apis/api";
+import { getComments,createComment, deleteComment } from "../../apis/api";
 
 const Comment = ({ postId }) => {
     const [commentList, setCommentList] = useState([]); // state for comments
@@ -55,6 +55,9 @@ const Comment = ({ postId }) => {
 
     const handleCommentDelete = (commentId) => {
         console.log("comment: ", commentId);
+        if (window.confirm("정말로 삭제하시겠습니까?진짜?진짜요?")) {
+            deleteComment(commentId);
+        }
         setCommentList(commentList.filter((comment) => comment.id !== commentId)); // TODO: add api call for deleting comment
     };
 
