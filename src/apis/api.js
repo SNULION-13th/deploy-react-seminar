@@ -118,7 +118,26 @@ export const updateComment = async (id, data) => {
 };
 
 // 과제 !!
-export const deleteComment = async (id) => {};
+export const deleteComment = async (id) => {
+  const response = await instanceWithToken.delete(`/comment/${id}/`);
+  if (response.status === 204) {
+    console.log("No Content");
+    window.location.reload();
+  } else {
+    if (response.status === 400) {
+      console.log("Bad Request");
+    } else {
+      if (response.status === 401) {
+        console.log("Unauthorized");
+      } else {
+        if (response.status === 404) {
+          console.log("Not Found");
+        }
+      }
+    }
+  }
+  return response.data;
+};
 
 //추가
 export const getUser = async () => {

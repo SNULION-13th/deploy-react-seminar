@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import comments from "../../data/comments"; // dummy data
 import CommentElement from "./CommentElement";
-import { getComments } from "../../apis/api";
+import { getComments, createComment, deleteComment } from "../../apis/api";
 import { getCookie } from "../../utils/cookie";
 
 const Comment = ({ postId }) => {
@@ -19,31 +19,41 @@ const Comment = ({ postId }) => {
   }, [postId]); // postID가 바뀔때마다 실행된다!
 
   const handleCommentSubmit = (e) => {
+    // Comment 작성 버튼이다. 마찬가지로 Post 작성과 비슷하게.
+
     e.preventDefault();
-    setCommentList([
-      // TODO: add api call for creating comment -> 이 부분 수정하라는!
-      ...commentList,
-      {
-        id: commentList.length + 1,
-        content: newContent,
-        created_at: new Date().toISOString(),
-        post: postId,
-        author: {
-          id: 1,
-          username: "user1",
-        },
-      },
-    ]);
-    console.log({
-      post: postId,
-      content: newContent,
-    });
-    setNewContent("");
+    // 어차피 백하고만 연동하면 되는거라서.. 전부 다 주석처리하면 됨.
+    // setCommentList([
+    //   // TODO: add api call for creating comment -> 이 부분 수정하라는!
+    //   ...commentList,
+    //   {
+    //     id: commentList.length + 1,
+    //     content: newContent,
+    //     created_at: new Date().toISOString(),
+    //     post: postId,
+    //     author: {
+    //       id: 1,
+    //       username: "user1",
+    //     },
+    //   },
+    // ]);
+    // console.log({
+    //   post: postId,
+    //   content: newContent,
+    // });
+    createComment({ post: postId, content: newContent });
+    // createComment의 인자는 json 형식.. newContent는 content일 뿐이다.
+    // json 형식으로 넘겨줘야지 백엔드가 기대하는 형식이다. created_at 같은건 다른 곳에서 자동으로 채워줌.
   };
 
-  const handleCommentDelete = (commentId) => {
-    console.log("comment: ", commentId);
-    setCommentList(commentList.filter((comment) => comment.id !== commentId)); // TODO: add api call for deleting comment
+  const handleCommentDelete = async (commentId) => {
+    const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+    try {
+      await deleteComment(commentId);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
