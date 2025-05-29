@@ -40,8 +40,9 @@ const Comment = ({ postId }) => {
         setNewContent("");
     }catch(error){
         console.error("댓글 작성 중 오류가 생겼습니다.", error)
+        };
     };
-    };
+
     const handleCommentDelete = (commentId) => {
         console.log("comment: ", commentId);
         setCommentList(commentList.filter((comment) => comment.id !== commentId)); // TODO: add api call for deleting comment
