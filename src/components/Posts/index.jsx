@@ -36,7 +36,7 @@ export const SmallPost = ({ post }) => {
 };
 
 export const BigPost = ({ post }) => {
-  const [like, setLike]=useState(post)
+  const [like, setLike]=useState(post);
   const onClickLike = async() => {
     alert("나도 좋아!");
     // add api call for liking post here
@@ -76,7 +76,7 @@ export const BigPost = ({ post }) => {
         className="self-start text-black bg-transparent border-none cursor-pointer mt-2"
         onClick={onClickLike}
       >
-        ❤️ {post.like_users.length}
+        ❤️ {like.like_users.length}
       </button>
     </div>
   );
