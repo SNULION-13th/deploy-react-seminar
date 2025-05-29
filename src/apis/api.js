@@ -66,9 +66,9 @@ export const deletePost = async (id, navigate) => {
 };
 
 // 과제!!
-export const likePost = async (postId) => {
+//export const likePost = async (postId) => {
 
-};
+//};
 
 
 // 추가 
@@ -149,3 +149,21 @@ export const getUser = async () => {
     return response.data;
 };
 
+
+export const likePost =async(postId)=>{
+    try{
+        const res= await instanceWithToken.post(`/post/${postId}/like/`);
+        if (res.status === 200){
+            return res.data;
+        }
+    }catch(error){
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 401) {
+        alert("Authentication credentials not provided");
+      }  else if (status === 404) {
+        alert("Not found.");
+      } 
+        }
+    }
+};

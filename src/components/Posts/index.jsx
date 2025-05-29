@@ -1,4 +1,7 @@
 import { Link } from "react-router-dom";
+import { likePost } from "../../apis/api";
+import { useState } from "react";
+
 
 export const SmallPost = ({ post }) => {
   const onClickLike = (e) => {
@@ -33,9 +36,18 @@ export const SmallPost = ({ post }) => {
 };
 
 export const BigPost = ({ post }) => {
-  const onClickLike = () => {
+  const [like, setLike]=useState(post)
+  const onClickLike = async() => {
     alert("나도 좋아!");
     // add api call for liking post here
+    try{
+      const updatedPost = await likePost(like.id);
+      if (updatedPost) {
+        setLike(updatedPost); 
+      }
+    }catch(error){
+      alert("안좋아 ... ㅜㅜ");
+    }
   };
 
   return (
