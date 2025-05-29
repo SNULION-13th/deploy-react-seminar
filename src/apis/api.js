@@ -2,9 +2,11 @@ import { instance, instanceWithToken } from "./axios";
 
 // Account 관련 API들
 export const signIn = async (data) => {
-  const response = await instance.post("/account/signin/", data); // instance를 써서 상태가 상당히 깔끔해진다.
+  const response = await instance.post("/account/signin/", data); // instance를 써서 상태가 상당히 깔끔해진다.\
+  // 이 위에는 backend에서 가져오는 거인거고
   if (response.status === 200) {
     window.location.href = "/"; // 회원가입 잘 되면 홈화면으로 가게끔.
+    // 이거는 프론트의 홈화면으로 보내는 것 같음.
   } else {
     console.log("Error");
   }
@@ -25,7 +27,7 @@ export const signUp = async (data) => {
 // 추가
 export const getPosts = async () => {
   // 전부 다 가져오는거
-  const response = await instance.get("/post/");
+  const response = await instance.get("/post/"); // backend에서 모든 post를 get하는 것을 요청. --> getComments도 마찬가지!
   return response.data;
 };
 
@@ -93,6 +95,7 @@ export const getComments = async (postId) => {
   const response = await instance.get(`/comment/?post=${postId}`);
   return response.data;
 };
+// getPosts 참고해서 getComments로 모든 댓글 불러오기. 백엔드와의 연결도 필요.
 
 export const createComment = async (data) => {
   const response = await instanceWithToken.post("/comment/", data);
