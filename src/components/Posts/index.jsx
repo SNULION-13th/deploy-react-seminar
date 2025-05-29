@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 
 export const SmallPost = ({ post }) => {
-  const onClickLike = () => {
+  const onClickLike = (e) => {
+    e.preventDefault(); // Link 클릭 이벤트 막기
     alert("나도 좋아!");
     // add api call for liking post here
   };
+
   return (
     <Link
       to={`/${post.id}`}
@@ -19,18 +21,20 @@ export const SmallPost = ({ post }) => {
           </span>
         ))}
       </div>
-      <div className="cursor-pointer" onClick={onClickLike}>
-        {post.like_users.length > 0 && `❤️ ${post.like_users.length}`}
-      </div>
+      <button
+        type="button"
+        className="bg-transparent border-none cursor-pointer"
+        onClick={onClickLike}
+      >
+        ❤️ {post.like_users.length}
+      </button>
     </Link>
   );
 };
 
-export const BigPost = ({ post }) => {
-  const onClickLike = () => {
-    alert("나도 좋아!");
-    // add api call for liking post here
-  };
+export const BigPost = ({ post, onClickLike }) => {
+  const hasLiked = user && post.like_users.includes(user.id);
+
   return (
     <div className="flex flex-col px-8 py-5 w-full bg-orange-400 ring-4 ring-orange-300 rounded-xl gap-5">
       <div className="flex flex-row items-center justify-between gap-3">
@@ -42,7 +46,7 @@ export const BigPost = ({ post }) => {
         </span>
       </div>
 
-      <div className=" rounded-xl p-2 text-black font-medium text-lg border-2 border-black">
+      <div className="rounded-xl p-2 text-black font-medium text-lg border-2 border-black">
         {post.content}
       </div>
 
@@ -56,10 +60,11 @@ export const BigPost = ({ post }) => {
       </div>
 
       <div
-        className="flex flex-row text-black cursor-pointer"
-        onClick={onClickLike}
+        className="flex flex-row text-black cursor-pointer mt-2"
+        onClick={onClickLike} // ✅ props로 받은 핸들러 사용
       >
-        {post.like_users.length > 0 && `❤️ ${post.like_users.length}`}
+        <span>{hasLiked ? "❤️" : "🤍"}</span>
+        <span>{post.like_users.length}</span>
       </div>
     </div>
   );
