@@ -1,4 +1,6 @@
 import { useState } from "react";
+import axios from "axios";
+import { signUp } from "../apis/api";
 
 const SignUpPage = () => {
   const [signUpData, setSignUpData] = useState({
@@ -15,11 +17,10 @@ const SignUpPage = () => {
     setSignUpData({ ...signUpData, [id]: value });
   };
 
-  const handleSignUpSubmit = (e) => {
+  const handleSignUpSubmit = async (e) => {
     e.preventDefault(); // to prevent reloading the page
-    console.log(signUpData);
-    alert("회원가입 하기"); // TODO: add api call for sign up
-  };
+    signUp(signUpData); //signUp이라는 함수를 사용해서 진짜 회원가입이 됨
+  };	
 
   return (
     <div className="flex flex-col items-center w-1/2">
