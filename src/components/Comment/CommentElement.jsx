@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import {updateComment} from "../../apis/api.js"
+import {updateComment, getUser} from "../../apis/api.js"
 import { getCookie } from "../../utils/cookie.js";
+
 const CommentElement = (props) => {
     const { comment, handleCommentDelete, postId } = props;
     const [content, setContent] = useState(comment.content);
@@ -19,7 +20,7 @@ const CommentElement = (props) => {
     const handleEditComment = async ()  => { 
         // add api call for editing comment
         try{
-            const res= await updateComment(comment.id,onChangeValue);
+            const res= await updateComment(comment.id,{ content: onChangeValue });
             setContent(onChangeValue);
             setIsEdit(false);
             console.log({
@@ -37,7 +38,11 @@ const CommentElement = (props) => {
             if (getCookie("access_token")){
                 try{
                     const user=await getUser();
-                    if (user.id === comment.author.id){
+                    /*
+                    console.log("현재 유저:", user); 
+                    console.log("댓글 작성자:", comment.author);
+                    */
+                    if (user.id === comment.author){
                         setIsAuthor(true);
                     }
                 }catch (error){
@@ -46,7 +51,6 @@ const CommentElement = (props) => {
             }
         };
         checkAuthor();
-
     }, [comment.author.id]);
 
     return (
