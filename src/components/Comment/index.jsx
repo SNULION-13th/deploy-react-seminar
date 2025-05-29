@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-  getComments,
+  getComments, 
   createComment,
   deleteComment,
   getUser,
@@ -14,7 +14,7 @@ const Comment = ({ postId }) => {
   const [currentUser, setCurrentUser] = useState(null);
 
   // 댓글 목록을 불러오는 함수
-  const loadComments = async () => {
+  const loadComments = async (  ) => {
     setLoading(true);
     try {
       const data = await getComments(postId);
