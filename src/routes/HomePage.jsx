@@ -2,40 +2,57 @@ import { useState, useEffect } from "react";
 import { SmallPost } from "../components/Posts";
 import { Link } from "react-router-dom";
 import posts from "../data/posts";
+import { getPosts, getTags, checkLogin } from "../apis/api";
+import { getCookie } from "../utils/cookie";
 
 const HomePage = () => {
-  const [postList, setPostList] = useState(posts);
+  const [postList, setPostList] = useState([]);
   const [tags, setTags] = useState([]);
   const [searchTags, setSearchTags] = useState([]);
   const [searchValue, setSearchValue] = useState("");
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false); // 로그인 여부 상태, 우선 false로 초기화
+
   useEffect(() => {
-    const tagList = posts.reduce((acc, post) => {
-      for (let tag of post.tags) {
-        acc.add(tag.content);
-      }
-      return acc;
-    }, new Set());
-    setTags([...tagList]);
-    setSearchTags([...tagList]);
+    const setLoginStatus = async () => {
+      const result = await checkLogin();
+      setIsUserLoggedIn(result);
+    };
+    setLoginStatus();
   }, []);
+
+  useEffect(() => {
+
+    const getPostsAPI = async () => {
+			const posts = await getPosts();
+			setPostList(posts);
+		};
+		getPostsAPI();
+      const getTagsAPI = async () => {
+        const tags = await getTags();
+        const tagContents = tags.map((tag) => {
+          return tag.content;
+      });
+      setTags(tagContents);
+      setSearchTags(tagContents);
+    };
+    getTagsAPI();
+		// getTags() 이용해서 tag들 불러오고 tags.map을 이용해서 tagContents에
+		// tag.content만 저장한 후, tags와 searchTags에 저장
+  }, []);
+    
 
   const handleChange = (e) => {
     const { value } = e.target;
     const newTags = tags.filter((tag) => tag.includes(value));
     setSearchTags(newTags);
   };
-  const handleTagFilter = (e) => {
+	const handleTagFilter = (e) => {
     const { innerText } = e.target;
     if (searchValue === innerText.substring(1)) {
       setSearchValue("");
-      setPostList(posts);
     } else {
       const activeTag = innerText.substring(1);
       setSearchValue(activeTag);
-      const newPosts = posts.filter((post) =>
-        post.tags.find((tag) => tag.content === activeTag)
-      );
-      setPostList(newPosts);
     }
   };
 
@@ -65,16 +82,24 @@ const HomePage = () => {
           );
         })}
       </div>
-      <div className="grid grid-cols-3 px-10 mt-10">
-        {postList.map((post) => (
-          <SmallPost key={post.id} post={post} />
-        ))}
+		  <div className="grid grid-cols-4 px-10 mt-10">
+        {postList
+          .filter((post) =>
+            searchValue
+              ? post.tags.find((tag) => tag.content === searchValue)
+              : post
+          )
+          .map((post) => (
+            <SmallPost key={post.id} post={post} />
+          ))}
       </div>
-      <div className="flex justify-center m-20">
-        <Link className="button" to="/create">
-          작성
-        </Link>
-      </div>
+      {getCookie("access_token") ? (
+        <div className="flex justify-center m-20">
+          <Link className="button" to="/create">
+            작성
+          </Link>
+        </div>
+      ) : null}
     </div>
   );
 };
