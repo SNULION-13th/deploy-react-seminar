@@ -11,7 +11,7 @@ export const signIn = async (data) => {
 };
 
 export const signUp = async (data) => {
-    const response = await instance.post("/account/signup/", data);
+    const response = await instanceWithToken.post("/account/signup/", data);
     if (response.status === 200 || response.status === 201) {
     window.location.href = "/";
     } else {
@@ -19,7 +19,14 @@ export const signUp = async (data) => {
     }
     return response;
 };
-
+export const signOut = async () => {
+  const response = await instanceWithToken.post("/account/signout/");
+  if (response.status === 204) {
+    window.location.href = "/";
+  } else {
+    console.log("Error");
+  }
+};
 
 // 추가 
 export const getPosts = async () => {
@@ -149,6 +156,14 @@ export const getUser = async () => {
     return response.data;
 };
 
+export const checkLogin = async () => {
+  try {
+    const response = await instanceWithToken.get("/account/info/");
+    return response.status === 200;
+  } catch (error) {
+    return false;
+  }
+};
 
 export const likePost =async(postId)=>{
     try{

@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getCookie, removeCookie } from "../../utils/cookie";
+//import { getCookie, removeCookie } from "../../utils/cookie";
 import lion from "../../assets/images/lion.jpeg";
-
+import { signOut, checkLogin } from "../../apis/api";
 const Header = () => {
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false); // 로그인 여부 상태, 우선 false로 초기화
-
+/*
   // getCookie를 통해 access token을 가져올 수 있으면 로그인 된 것으로 설정
   useEffect(() => {
     const loggedIn = getCookie("access_token") ? true : false;
@@ -16,6 +16,19 @@ const Header = () => {
   const handleSignOut = () => {
     removeCookie("access_token");
     removeCookie("refresh_token");
+    window.location.href = "/"; // 새로고침 - 로그아웃 되었다는 것을 인지시켜주기 위해
+  };
+*/
+  useEffect(() => {
+    const setLoginStatus = async () => {
+      const result = await checkLogin();
+      setIsUserLoggedIn(result);
+    };
+    setLoginStatus();
+  }, []);
+
+  const handleSignOut = async () => {
+    await signOut();
     window.location.href = "/"; // 새로고침 - 로그아웃 되었다는 것을 인지시켜주기 위해
   };
 

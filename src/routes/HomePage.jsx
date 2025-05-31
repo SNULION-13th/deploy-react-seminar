@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { SmallPost } from "../components/Posts";
 import { Link } from "react-router-dom";
 import posts from "../data/posts";
-import { getPosts, getTags } from "../apis/api";
+import { getPosts, getTags, checkLogin } from "../apis/api";
 import { getCookie } from "../utils/cookie";
 
 const HomePage = () => {
@@ -10,6 +10,15 @@ const HomePage = () => {
   const [tags, setTags] = useState([]);
   const [searchTags, setSearchTags] = useState([]);
   const [searchValue, setSearchValue] = useState("");
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false); // 로그인 여부 상태, 우선 false로 초기화
+
+  useEffect(() => {
+    const setLoginStatus = async () => {
+      const result = await checkLogin();
+      setIsUserLoggedIn(result);
+    };
+    setLoginStatus();
+  }, []);
 
   useEffect(() => {
 

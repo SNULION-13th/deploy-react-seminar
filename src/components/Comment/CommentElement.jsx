@@ -32,16 +32,16 @@ const CommentElement = (props) => {
             console.error("댓글 수정 실패",error)
         }
     };
-
+/*
     useEffect(() => { // add api call to check if user is the author of the comment
         const checkAuthor = async () => {
             if (getCookie("access_token")){
                 try{
                     const user=await getUser();
-                    /*
-                    console.log("현재 유저:", user); 
-                    console.log("댓글 작성자:", comment.author);
-                    */
+                    
+                    //console.log("현재 유저:", user); 
+                    //console.log("댓글 작성자:", comment.author);
+                   
                     if (user.id === comment.author){
                         setIsAuthor(true);
                     }
@@ -52,7 +52,7 @@ const CommentElement = (props) => {
         };
         checkAuthor();
     }, [comment.author.id]);
-
+*/
     return (
         <div className="w-full flex flex-row justify-between items-center mb-5">
             <div className="w-3/4 flex flex-col gap-1">
